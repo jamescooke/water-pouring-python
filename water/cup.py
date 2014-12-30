@@ -48,3 +48,21 @@ class Cup(object):
         True
         """
         return self.contents == GOAL
+
+    def __eq__(self, c):
+        """
+        NOTE does not care about types
+
+        >>> c = Cup(cap=5, cont=4)
+
+        1.  If either capacity or contents are different then not equal
+        >>> c == Cup(cap=6, cont=4)
+        False
+        >>> c == Cup(cap=5, cont=5)
+        False
+
+        2. If both are the same then equal
+        >>> c == Cup(cap=5, cont=4)
+        True
+        """
+        return self.capacity == c.capacity and self.contents == c.contents
