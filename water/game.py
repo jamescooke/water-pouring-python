@@ -3,11 +3,17 @@ from functools import reduce
 from .cup import Cup
 
 
+or_reduction = lambda x, y: x or y
+and_reduction = lambda x, y: x and y
+
+
 class Game(object):
 
     cups = None
+    parent = None       # Game that created this one
+    children = None
 
-    def __init__(self, sizes=None):
+    def __init__(self, sizes=None, parent=None):
         """
         Set up a game with cups.
 
@@ -18,10 +24,16 @@ class Game(object):
         >>> g = Game()
         >>> len(g.cups)
         3
+        >>> g.parent is None
+        True
+        >>> g.children
+        []
 
-        >>> h = Game(sizes=[(5, 5), (5, 0)])
+        >>> h = Game(sizes=[(5, 5), (5, 0)], parent=g)
         >>> len(h.cups)
         2
+        >>> h.parent is g
+        True
         """
         self.cups = []
 
@@ -31,6 +43,12 @@ class Game(object):
 
         for cap, cont in sizes:
             self.cups.append(Cup(cap=cap, cont=cont))
+
+        # Save a pointer to the parent
+        self.parent = parent
+
+        # Children starts empty
+        self.children = []
 
     def is_goal(self):
         """
@@ -45,14 +63,15 @@ class Game(object):
         False
         """
         return reduce(
-            # OR reduction
-            lambda x, y: x or y,
+            or_reduction,
             [cup.is_goal() for cup in self.cups]
         )
 
     def __eq__(self, g):
         """
         Games have same number of Cups and all Cups are equal.
+
+        :pre: Game has at least one cup.
 
         >>> g = Game(sizes=[(3, 0), (5, 5)])
 
@@ -70,8 +89,58 @@ class Game(object):
         >>> g == Game(sizes=[(3, 0), (5, 5)])
         True
         """
-        return len(self.cups) == len(g.cups) and reduce(
-            # AND reduction
-            lambda x, y: x and y,
-            [cup == g.cups[pos] for pos, cup in enumerate(self.cups)]
+        return (
+            len(self.cups) == len(g.cups)
+            and reduce(
+                and_reduction,
+                [cup == g.cups[pos] for pos, cup in enumerate(self.cups)]
+            )
+        )
+
+    def net_has_game(self, g):
+        """
+        Game's network of games contains this game.
+        """
+        return self.top_parent().has_game(g)
+
+    def top_parent(self):
+        """
+        Returns the top parent for a game, the parent state that has no parent.
+        """
+        return self if self.parent is None else self.parent.top_parent()
+
+    def has_game(self, g):
+        """
+        Passed Game ``g`` is in this Game's tree of Games
+
+        >>> from unittest.mock import Mock
+        >>> g = Game(sizes=[(3, 0), (5, 5)])
+
+        1.  If the game being seached for matches, then True
+        >>> g.has_game(Game(sizes=[(3, 0), (5, 5)]))
+        True
+
+        2.  If game does not match and no child games, False
+        >>> g.has_game(Game(sizes=[(4, 0), (5, 5)]))
+        False
+
+        3.  If game being search for does not match, sub games are searched
+        >>> s_a = Mock(name='sub Game A')
+        >>> s_a.has_game.return_value = False
+        >>> s_b = Mock(name='sub Game B')
+        >>> s_b.has_game.return_value = True
+        >>> g.children.append(s_a)
+        >>> g.children.append(s_b)
+        >>> g.has_game(Game(sizes=[(4, 0), (5, 5)]))
+        True
+        """
+        return (
+            self == g
+            or (
+                len(self.children) > 0
+                and reduce(
+                    or_reduction,
+                    [game.has_game(g) for game in self.children]
+                )
+            )
         )

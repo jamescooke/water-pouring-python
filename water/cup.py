@@ -51,7 +51,7 @@ class Cup(object):
 
     def __eq__(self, c):
         """
-        NOTE does not care about types
+        NOTE does not care about types.
 
         >>> c = Cup(cap=5, cont=4)
 
