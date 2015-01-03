@@ -28,8 +28,19 @@ class Cup(object):
         self.capacity = cap
         self.contents = cont
 
+    @property
+    def space(self):
+        """
+        >>> c = Cup(cap=3, cont=1)
+        >>> c.space
+        2
+        """
+        return self.capacity - self.contents
+
     def has_space(self):
         """
+        TODO use this to make pouring out all options quicker.
+
         >>> b = Cup(cap=5, cont=4)
         >>> b.has_space()
         True
@@ -37,7 +48,7 @@ class Cup(object):
         >>> c.has_space()
         False
         """
-        return self.contents < self.capacity
+        return self.space > 0
 
     def is_goal(self):
         """
@@ -66,3 +77,50 @@ class Cup(object):
         True
         """
         return self.capacity == c.capacity and self.contents == c.contents
+
+    def pour_into(self, other_cup):
+        """
+        Pour some / all content of this cup into other cup and make two new
+        cups.
+
+        1.  If current cup is empty, nothing changes.
+        >>> c = Cup(cap=3, cont=0)
+        >>> d = Cup(cap=5, cont=1)
+        >>> e, f = c.pour_into(d)
+        >>> e == c
+        True
+        >>> f == d
+        True
+
+        2.  If other cup is full, nothing changes.
+        >>> c = Cup(cap=3, cont=3)
+        >>> d = Cup(cap=5, cont=5)
+        >>> e, f = c.pour_into(d)
+        >>> e == c
+        True
+        >>> f == d
+        True
+
+        3.  If other cup has space and this cup has water, then transition.
+            First cup is 5/5 and second cup is 0/3, this gives 2/5 and 3/3.
+        >>> c = Cup(cap=5, cont=5)
+        >>> d = Cup(cap=3, cont=0)
+        >>> e, f = c.pour_into(d)
+        >>> e.contents
+        2
+        >>> f.contents
+        3
+        """
+        return (
+            Cup(
+                cap=self.capacity,
+                cont=self.contents-min(self.contents, other_cup.space)
+            ),
+            Cup(
+                cap=other_cup.capacity,
+                cont=other_cup.contents+min(self.contents, other_cup.space)
+            )
+        )
+
+    def __repr__(self):
+        return "<Cup {}/{}>".format(self.contents, self.capacity)
