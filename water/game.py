@@ -1,3 +1,4 @@
+import copy
 from functools import reduce
 
 from .cup import Cup
@@ -144,3 +145,37 @@ class Game(object):
                 )
             )
         )
+
+    def make_game(self, c_a, c_b):
+        """
+        Create a new game state by pouring Cup at ``c_a`` into Cup at ``c_b``.
+        New game will have its parent set as this Game.
+
+        1.  Does not care if the pour is a 'good pour', just returns the new
+            game. If there are no contents to pour, or no space in the
+            destination, then the new game will be in the same state and will
+            be removed by the de-duplication search.
+        >>> g = Game(sizes=[(3, 0), (5, 5)])
+        >>> h = g.make_game(0, 1)
+        >>> g == h
+        True
+        >>> h.parent is g
+        True
+
+        2.  When the pour is good, then the cups' states are adjusted
+            accordingly. Original parent Game's cups stay the same.
+        >>> g = Game(sizes=[(3, 3), (5, 5), (8, 0)])
+        >>> h = g.make_game(0, 2)
+        >>> expected = Game(sizes=[(3, 0), (5, 5), (8, 3)])
+        >>> h == expected
+        True
+        >>> h.parent is g
+        True
+        >>> g.cups[0].contents
+        3
+        """
+        new_game = copy.deepcopy(self)
+        new_game.parent = self
+        (new_game.cups[c_a],
+         new_game.cups[c_b]) = new_game.cups[c_a].pour_into(new_game.cups[c_b])
+        return new_game
