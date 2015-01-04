@@ -179,3 +179,78 @@ class Game(object):
         (new_game.cups[c_a],
          new_game.cups[c_b]) = new_game.cups[c_a].pour_into(new_game.cups[c_b])
         return new_game
+
+    def make_children(self):
+        """
+        Do all the pours, check that new Games don't exist in the network and
+        for those that are new add them to this Game's children.
+
+        1.  If there's just one cup, does nothing
+        >>> g = Game(sizes=[(4, 4)])
+        >>> g.make_children()
+        0
+        >>> g.children
+        []
+
+        2.  If a pour option creates a Game that's already in the network then
+            it's not added to the children.
+        >>> g = Game(sizes=[(3, 0), (5, 5)])
+        >>> g.make_children()
+        1
+        >>> expected = Game(sizes=[(3, 3), (5, 2)])
+        >>> g.children[0] == expected
+        True
+        """
+        for c_a in range(len(self.cups)):
+            for c_b in range(len(self.cups)):
+                if c_b == c_a:
+                    continue
+                new_game = self.make_game(c_a, c_b)
+                if not self.net_has_game(new_game):
+                    self.children.append(new_game)
+        return len(self.children)
+
+    def is_solvable(self):
+        """
+        Main function
+
+        TODO do these tests as unittests
+
+        >>> from unittest.mock import Mock
+
+        1.  If Game has a Cup of success then True :D
+        >>> g = Game()
+        >>> m_cup = Mock(name='cup')
+        >>> m_cup.is_goal.return_value = True
+        >>> g.cups = [m_cup]
+        >>> g.is_solvable()
+        True
+
+        2.  If Game is not success, pours are made from each cup to every other
+            and recursively called if the generated game is not already in the
+            network.
+        >>> g = Game(sizes=[(3, 0), (5, 5)])
+        >>> g.is_solvable()
+        False
+
+        3.  A success example
+        >>> g = Game(sizes=[(3, 3), (5, 1)])
+        >>> g.is_solvable()
+        True
+        """
+        return (
+            self.is_goal()
+            or (
+                bool(self.make_children())
+                and reduce(
+                    or_reduction,
+                    [game.is_solvable() and game.print_trace() for game in self.children]
+                )
+            )
+        )
+
+    def print_trace(self):
+        if self.parent is not None:
+            self.parent.print_trace()
+        print(self.cups)
+        return True
