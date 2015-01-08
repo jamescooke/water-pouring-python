@@ -242,4 +242,10 @@ class Game(object):
         return False
 
     def print_trace(self):
+        """
+        Run up the stack of Games printing each one so that a history can be
+        outputted when success is found. See unittests for coverage.
+        """
+        if self.parent is not None:
+            self.parent.print_trace()
         print(self.cups)

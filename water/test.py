@@ -1,3 +1,4 @@
+import builtins
 from functools import reduce
 from unittest import TestCase
 from unittest.mock import Mock, patch
@@ -99,3 +100,31 @@ class TestSolvable(TestCase):
         self.assertEqual(first.is_solvable.call_count, 1)
         self.assertEqual(second.is_solvable.call_count, 1)
         self.assertEqual(third.is_solvable.call_count, 0)
+
+    # --- Tests of print_trace ------------------------------------------------
+
+    @patch.object(builtins, 'print')
+    def test_print_trace_base_case(self, m_print):
+        """
+        print_trace with no parent just prints
+        """
+        g = Game()
+        g.parent = None
+
+        g.print_trace()
+
+        m_print.assert_called_once_with(g.cups)
+
+    @patch.object(builtins, 'print')
+    def test_print_trace_recurse(self, m_print):
+        """
+        print_trace with no parent just prints
+        """
+        f = Mock(name='Parent game', spec=Game)
+        g = Game()
+        g.parent = f
+
+        g.print_trace()
+
+        f.print_trace.assert_called_once_with()
+        m_print.assert_called_once_with(g.cups)
