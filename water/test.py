@@ -1,25 +1,9 @@
 import builtins
-from functools import reduce
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from .game import or_reduction, Game
+from .game import Game
 
-
-"""
-
-        2.  If Game is not success, pours are made from each cup to every other
-            and recursively called if the generated game is not already in the
-            network.
-        >>> g = Game(sizes=[(3, 0), (5, 5)])
-        >>> g.is_solvable()
-        False
-
-        3.  A success example
-        >>> g = Game(sizes=[(3, 3), (5, 1)])
-        >>> g.is_solvable()
-        True
-"""
 
 class TestSolvable(TestCase):
     """
@@ -61,8 +45,8 @@ class TestSolvable(TestCase):
     @patch.object(Game, 'solvable_child')
     @patch.object(Game, 'make_children')
     @patch.object(Game, 'is_goal')
-    def test_children_empty(self, m_is_goal, m_make_children,
-                            m_solvable_child):
+    def test_children_helper(self, m_is_goal, m_make_children,
+                             m_solvable_child):
         """
         If Game has children and is not solvable itself, then child games are
         tested using the helper function.
