@@ -37,19 +37,6 @@ class Cup(object):
         """
         return self.capacity - self.contents
 
-    def has_space(self):
-        """
-        TODO use this to make pouring out all options quicker.
-
-        >>> b = Cup(cap=5, cont=4)
-        >>> b.has_space()
-        True
-        >>> c = Cup(cap=5, cont=5)
-        >>> c.has_space()
-        False
-        """
-        return self.space > 0
-
     def is_goal(self):
         """
         Contains Goal amount
