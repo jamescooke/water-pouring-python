@@ -8,23 +8,33 @@ class Cup(object):
 
     def __init__(self, cap=1, cont=0):
         """
-        Makes cups ready for pouring
+        Makes cups ready for pouring.
 
-        0.  Cup set up
+        :pre: Assumes that provided ``cap`` is positive.
+
+        0.  Cup set up.
         >>> c = Cup()
         >>> c.capacity
         1
         >>> c.contents
         0
 
-        1.  Prevents cups being made with more water than capacity
+        1.  Prevents cups being made with more water than capacity.
         >>> d = Cup(cap=1, cont=2)
         Traceback (most recent call last):
         ...
         ValueError: Too much contents
+
+        2.  Prevents cups going into negative water which would be bad.
+        >>> d = Cup(cap=1, cont=-2)
+        Traceback (most recent call last):
+        ...
+        ValueError: Negative contents
         """
         if cap < cont:
             raise ValueError('Too much contents')
+        if cont < 0:
+            raise ValueError('Negative contents')
         self.capacity = cap
         self.contents = cont
 

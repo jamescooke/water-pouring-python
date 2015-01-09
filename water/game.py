@@ -240,9 +240,6 @@ class Game(object):
         Recursively walks list of Game's children looking for a solvable one.
         Wishing python was haskell ._. See unittests for coverage.
         """
-        if len(self.children) < 1:
-            return False
-
         for child in self.children:
             if child.is_solvable():
                 return True
