@@ -3,8 +3,9 @@
 A sketch of a "water pouring problem" in Python3.
 
 This README contains basic setup and test instructions. Full [blog post is
-*ABOUT TO BE* available](http://jamescooke.info/sketch-water-pouring.html) with
-more information.
+available](http://jamescooke.info/a-water-pouring-problem-sketched-in-python.html)
+with more information on features of the code and how some elements were put
+together.
 
 ## The Problem
 
